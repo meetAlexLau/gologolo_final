@@ -8,7 +8,7 @@ const GET_LOGOS = gql`
   {
     logos {
       _id
-      text
+      logoName
       lastUpdate
     }
   }

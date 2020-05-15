@@ -8,7 +8,7 @@ var GraphQLString = require('graphql').GraphQLString;
 var GraphQLInt = require('graphql').GraphQLInt;
 var GraphQLDate = require('graphql-date');
 var LogoModel = require('../models/Logo');
-
+var LogoComponentModel = require('../models/LogoComponent');
 var logoType = new GraphQLObjectType({
     name: 'logo',
     fields: function () {
@@ -16,14 +16,8 @@ var logoType = new GraphQLObjectType({
             _id: {
                 type: GraphQLString
             },
-            text: {
+            logoName: {
                 type: GraphQLString
-            },
-            color: {
-                type: GraphQLString
-            },
-            fontSize: {
-                type: GraphQLInt
             },
             backgroundColor: {
                 type: GraphQLString
@@ -49,6 +43,32 @@ var logoType = new GraphQLObjectType({
         }
     }
 });
+
+var logoComponentType = new GraphQLObjectType({
+    name: 'logoComponent',
+    fields: function() {
+        return {
+            id: {
+                type: GraphQLString
+            },
+            text: {
+                type: GraphQLString
+            },
+            color: {
+                type: GraphQLString
+            },
+            fontSize: {
+                type: GraphQLInt
+            },
+            height: {
+                type: GraphQLInt
+            },
+            width: {
+                type: GraphQLInt
+            }
+        }
+    }
+})
 
 var queryType = new GraphQLObjectType({
     name: 'Query',
@@ -78,6 +98,32 @@ var queryType = new GraphQLObjectType({
                         throw new Error('Error')
                     }
                     return logoDetails
+                }
+            },
+            logoComponent: {
+                type: logoComponentType,
+                args: {
+                    id: {
+                        name: '_id',
+                        type: GraphQLString
+                    }
+                },
+                resolve: function(root, params) {
+                    const logoComponentDetails = LogoComponentModel.findById(params.id).exec()
+                    if(!logoComponentDetails) {
+                        throw new Error('Error')
+                    }
+                    return logoComponentDetails
+                }
+            },
+            logoComponents: {
+                type: new GraphQLList(logoComponentType),
+                resolve: function() {
+                    const logoComponents = LogoComponentModel.find().exec()
+                    if(!logoComponents) {
+                        throw new Error('Error')
+                    }
+                    return logoComponents
                 }
             },
             getLogoByText: {
@@ -123,14 +169,11 @@ var mutation = new GraphQLObjectType({
             addLogo: {
                 type: logoType,
                 args: {
-                    text: {
+                    logoName: {
                         type: new GraphQLNonNull(GraphQLString)
                     },
-                    color: {
-                        type: new GraphQLNonNull(GraphQLString)
-                    },
-                    fontSize: {
-                        type: new GraphQLNonNull(GraphQLInt)
+                    logos: {
+                        type: new GraphQLNonNull(GraphQLList(GraphQLString))
                     },
                     backgroundColor: {
                         type: new GraphQLNonNull(GraphQLString)
@@ -160,13 +203,9 @@ var mutation = new GraphQLObjectType({
                     return newLogo
                 }
             },
-            updateLogo: {
-                type: logoType,
+            addLogoComponent: {
+                type: logoComponentType,
                 args: {
-                    id: {
-                        name: 'id',
-                        type: new GraphQLNonNull(GraphQLString)
-                    },
                     text: {
                         type: new GraphQLNonNull(GraphQLString)
                     },
@@ -175,6 +214,36 @@ var mutation = new GraphQLObjectType({
                     },
                     fontSize: {
                         type: new GraphQLNonNull(GraphQLInt)
+                    },
+                    height: {
+                        type: new GraphQLNonNull(GraphQLInt)
+                    },
+                    width: {
+                        type: new GraphQLNonNull(GraphQLInt)
+                    }
+                },
+                resolve: function(root,params) {
+                    const logoComponentModel = new LogoComponentModel(params);
+                    const newLogoComponent= logoComponentType.save();
+                    if(!newLogoComponent) {
+                        throw new Error('Error')
+                    }
+                    return newLogoComponent
+                }
+            },
+
+            updateLogo: {
+                type: logoType,
+                args: {
+                    id: {
+                        name: 'id',
+                        type: new GraphQLNonNull(GraphQLString)
+                    },
+                    logoName: {
+                        type: new GraphQLNonNull(GraphQLString)
+                    },
+                    logos: {
+                        type: new GraphQLNonNull(GraphQLList(GraphQLString))
                     },
                     backgroundColor: {
                         type: new GraphQLNonNull(GraphQLString)
@@ -197,12 +266,42 @@ var mutation = new GraphQLObjectType({
                 },
                 resolve(root, params) {
                     return LogoModel.findByIdAndUpdate(params.id,
-                        { text: params.text, color: params.color, fontSize: params.fontSize,
+                        { logoName: params.logoName, logos: params.logos,
                             backgroundColor : params.backgroundColor, borderColor : params.borderColor,
                             borderWidth: params.borderWidth, borderRadius: params.borderRadius,
                             padding: params.padding, margin: params.margin, lastUpdate: new Date() }, function (err) {
                         if (err) return next(err);
                     });
+                }
+            },
+            updateLogoComponent: {
+                type: logoComponentType,
+                args: {
+                    id: {
+                        name: '_id',
+                        type: new GraphQLNonNull(GraphQLString)
+                    },
+                    text: {
+                        type: new GraphQLNonNull(GraphQLString)
+                    },
+                    color: {
+                        type: new GraphQLNonNull(GraphQLString)
+                    },
+                    fontSize: {
+                        type: new GraphQLNonNull(GraphQLInt)
+                    },
+                    height: {
+                        type: new GraphQLNonNull(GraphQLInt)
+                    },
+                    width: {
+                        type: new GraphQLNonNull(GraphQLInt)
+                    }
+                },
+                resolve(root, params) {
+                    return LogoComponentModel.findByIdAndUpdate(params.id,
+                        {text: params.text, color:params.color, fontSize:params.fontSize, height: params.height, width: params.width},
+                        function(err) { if(err) return next(err);
+                        });
                 }
             },
             removeLogo: {
@@ -215,6 +314,21 @@ var mutation = new GraphQLObjectType({
                 resolve(root, params) {
                     const remLogo = LogoModel.findByIdAndRemove(params.id).exec();
                     if (!remLogo) {
+                        throw new Error('Error')
+                    }
+                    return remLogo;
+                }
+            },
+            removeLogoComponent: {
+                type: logoType,
+                args: {
+                    id: {
+                        type: new GraphQLNonNull(GraphQLString)
+                    }
+                },
+                resolve(root, params) {
+                    const remLogo = LogoComponentModel.findByIdAndRemove(params.id).exec();
+                    if(!remLogo) {
                         throw new Error('Error')
                     }
                     return remLogo;
