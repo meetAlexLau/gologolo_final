@@ -4,6 +4,16 @@ import gql from "graphql-tag";
 import { Query, Mutation } from "react-apollo";
 import { clamp } from "../utils/utlity";
 
+const GET_LOGOS = gql`
+  {
+    logos {
+      _id
+      logoName
+      lastUpdate
+    }
+  }
+`;
+
 const GET_LOGO = gql`
     query logo($logoId: String) {
         logo(id: $logoId) {
@@ -16,6 +26,18 @@ const GET_LOGO = gql`
             borderRadius
             padding
             margin
+        }
+    }
+`;
+
+const GET_LOGO_COMPONENTS = gql`
+    {
+        logoComponents{
+            _id
+            text
+            fontSize
+            height
+            width
         }
     }
 `;
@@ -99,19 +121,68 @@ class EditLogoScreen extends Component {
                     }
 
                     return (
-                        <Mutation mutation={UPDATE_LOGO} key={data.logo._id} onCompleted={() => this.props.history.push(`/`)}>
-                            {(updateLogo, { loading, error }) => (
-                                <div className="container">
-                                    <div className="panel panel-default">
-                                        <div className="panel-heading">
-                                            <h4><Link to="/" className={"btn btn-secondary btn-block"}>Home</Link></h4>
-                                            <h3 className="panel-title">
-                                                Edit Logo 
-                                                <h5>{this.state.renderLogoName}</h5>
+                            <div className="container">
+                                <div className="panel panel-default">
+                                    <div className="panel-heading">
+                                        <h4><Link to="/" className={"btn btn-secondary btn-block"}>Home</Link></h4>
+                                        <h3 className="panel-title">
+                                            Edit Logo 
+                                            <h5>{this.state.renderLogoName}</h5>
                                         </h3>
-                                        </div>
-                                        <div className="panel-body row">                                            
-                                            <form className="col-3" onSubmit={e => {
+                                    </div>
+                                    <div className="panel-body row">  
+                                        <div className="col-3">
+                                            <Query query={GET_LOGO_COMPONENTS} pollInterval={500}>
+                                                {({loading, error, data}) => {
+                                                    if (loading) return 'Loading...';
+                                                    if (error) return `Error! ${error.message}`;                                                  
+                                                return(
+                                                <div>
+                                                    <button type="button"onClick={() => {console.log(data)}}>eeee</button>
+                                                    <Mutation mutation={ADD_LOGO_COMPONENT} onCompleted={() => window.location.reload()}>
+                                                    {(addLogoComponent) => (
+                                                        <div>
+                                                            <form onSubmit={e => {
+                                                                e.preventDefault();
+                                                                    if(logoComponent.value.length >1) {
+                                                                        addLogoComponent({variables: {text: logoComponent.value, color: "#000000", fontSize: 12,
+                                                                            height: 300, width: 300}});
+                                                                            logoComponent.value = "";
+                                                                    };
+                                                            }}>
+                                                                <div className="form-group col-8">
+                                                                    <label htmlFor="text">Create Logo Text:</label>
+                                                                    <input type="text" className="form-control" name="logoComponent" ref={node => {
+                                                                        logoComponent= node;
+                                                                        }} placeholder={"Text"} defaultValue={"Text"} />
+                                                                    <button type="submit">Create</button>
+                                                                </div>
+                                                                <div className="form-group col-8">
+                                                                    <label htmlFor="text">Text:</label>
+                                                                    <input disabled={this.state.selected} type="text" className="form-control" name="text" ref={node => {
+                                                                        text = node;
+                                                                    }} onChange={() => this.setState({renderText: text.value})} placeholder={"text"} defaultValue={"text"} />
+                                                                </div>                                                
+                                                                <div className="form-group col-4">
+                                                                    <label htmlFor="color">Color:</label>
+                                                                    <input disabled={this.state.selected}type="color" className="form-control" name="color" ref={node => {
+                                                                        color = node;
+                                                                    }}onChange={() => this.setState({renderColor: color.value})} placeholder={"#000000"} defaultValue={"#000000"} />
+                                                                </div>
+                                                                <div className="form-group col-8">
+                                                                    <label htmlFor="fontSize">Font Size:</label>
+                                                                    <input disabled={this.state.selected} type="text" onInput={()=>{fontSize.value = clamp(fontSize.value, 0, 144);}} className="form-control" name="fontSize" ref={node => {
+                                                                        fontSize = node;
+                                                                    }} onChange={() => this.setState({renderFontSize: parseInt(fontSize.value)})} placeholder={12} defaultValue={12} />
+                                                                </div>
+                                                            </form>
+                                                        </div>
+                                                    )}</Mutation>
+                                                </div>
+                                            )}}</Query>
+                                        <Mutation mutation={UPDATE_LOGO, ADD_LOGO_COMPONENT} key={data.logo._id} onCompleted={() => this.props.history.push(`/`)}>
+                                        {(updateLogo, { loading, error }) => (
+                                            <form onSubmit={e => {
                                                 e.preventDefault();
                                                 updateLogo({ variables: { id: data.logo._id, logoName: logoName.value, logos: data.logo.logos,
                                                                             backgroundColor: backgroundColor.value, borderColor: borderColor.value,
@@ -127,38 +198,11 @@ class EditLogoScreen extends Component {
                                                 padding.value = "";
                                                 margin.value = "";
                                             }}>
-                                                
-                                                
-                                                <div className="form-group col-8">
-                                                    <label htmlFor="text">Create Logo Text:</label>
-                                                    <input type="text" className="form-control" name="logoComponent" ref={node => {
-                                                        logoComponent= node;
-                                                    }} placeholder={"Text"} defaultValue={"Text"} />
-                                                    <button type="submit">Create</button>
-                                                </div>
                                                 <div className="form-group col-8">
                                                     <label htmlFor="text">Logo Name:</label>
                                                     <input type="text" className="form-control" name="logoName" ref={node => {
                                                         logoName= node;
                                                     }} onChange={() => this.setState({renderLogoName: logoName.value})} placeholder={data.logo.logoName} defaultValue={data.logo.logoName} />
-                                                </div>
-                                                <div className="form-group col-8">
-                                                    <label htmlFor="text">Text:</label>
-                                                    <input disabled={this.state.selected} type="text" className="form-control" name="text" ref={node => {
-                                                        text = node;
-                                                    }} onChange={() => this.setState({renderText: text.value})} placeholder={data.logo.text} defaultValue={data.logo.text} />
-                                                </div>                                                
-                                                <div className="form-group col-4">
-                                                    <label htmlFor="color">Color:</label>
-                                                    <input disabled={this.state.selected}type="color" className="form-control" name="color" ref={node => {
-                                                        color = node;
-                                                    }}onChange={() => this.setState({renderColor: color.value})} placeholder={data.logo.color} defaultValue={data.logo.color} />
-                                                </div>
-                                                <div className="form-group col-8">
-                                                    <label htmlFor="fontSize">Font Size:</label>
-                                                    <input disabled={this.state.selected} type="text" onInput={()=>{fontSize.value = clamp(fontSize.value, 0, 144);}} className="form-control" name="fontSize" ref={node => {
-                                                        fontSize = node;
-                                                    }} onChange={() => this.setState({renderFontSize: parseInt(fontSize.value)})} placeholder={data.logo.fontSize} defaultValue={data.logo.fontSize} />
                                                 </div>
                                                 <div className="form-group col-4">
                                                     <label htmlFor="backgroundColor">Background Color:</label>
@@ -197,27 +241,44 @@ class EditLogoScreen extends Component {
                                                     }} onChange={() => this.setState({renderMargin: parseInt(margin.value)})} placeholder={data.logo.margin} defaultValue={data.logo.margin} />
                                                 </div>
                                                 <button type="submit" className="btn btn-success">Submit</button>
+                                                <button type="button" className="btn btn-primary">Export</button>
                                             </form>
-                                            <div className="col" style={{
-                                                    backgroundColor: this.state.renderBackgroundColor,
-                                                    borderColor: this.state.renderBorderColor,
-                                                    borderStyle: "solid",
-                                                    borderWidth: this.state.renderBorderWidth,
-                                                    borderRadius: this.state.renderBorderRadius,
-                                                    padding: this.state.renderPadding,
-                                                    margin: this.state.renderMargin,
-                                                    height: "800px",
-                                                    width: "800px"
-                                                }}>
-                                                    
-                                            </div>
-                                            {loading && <p>Loading...</p>}
-                                            {error && <p>Error :( Please try again</p>}
+                                        )}</Mutation>
                                         </div>
+                                        <div className="col-8" style={{
+                                            backgroundColor: this.state.renderBackgroundColor,
+                                            borderColor: this.state.renderBorderColor,
+                                            borderStyle: "solid",
+                                            borderWidth: this.state.renderBorderWidth,
+                                            borderRadius: this.state.renderBorderRadius,
+                                            padding: this.state.renderPadding,
+                                            margin: this.state.renderMargin,
+                                            height: "800px",
+                                            width: "800px"
+                                        }}>
+                                            <Query query={GET_LOGO_COMPONENTS} pollInterval={500}>
+                                                {({loading, error, data})=> {
+                                                    if (loading) return 'Loading...';
+                                                    if (error) return `Error! ${error.message}`;  
+                                                    return (
+                                                        <div>
+                                                            <button type="button" onClick={()=> {console.log(data.logoComponents)}}>weas</button>
+                                                            {data.logoComponents.map((logoComp, index) => (
+                                                                <div key={index}
+                                                                style={{color: logoComp.color, fontSize: logoComp.fontSize, height: logoComp.height, width: logoComp.width}}
+                                                                >{logoComp.text}</div>
+                                                            ))}
+                                                            
+                                                        </div>
+                                                    );
+                                                }}
+                                            </Query>
+                                        </div>
+                                        {loading && <p>Loading...</p>}
+                                        {error && <p>Error :( Please try again</p>}
                                     </div>
                                 </div>
-                            )}
-                        </Mutation>
+                            </div>
                     );
                 }}
             </Query>

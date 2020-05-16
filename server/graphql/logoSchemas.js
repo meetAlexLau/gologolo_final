@@ -227,7 +227,7 @@ var mutation = new GraphQLObjectType({
                 },
                 resolve: function(root,params) {
                     const logoComponentModel = new LogoComponentModel(params);
-                    const newLogoComponent= logoComponentType.save();
+                    const newLogoComponent= logoComponentModel.save();
                     if(!newLogoComponent) {
                         throw new Error('Error')
                     }
@@ -323,7 +323,7 @@ var mutation = new GraphQLObjectType({
                 }
             },
             removeLogoComponent: {
-                type: logoType,
+                type: logoComponentType,
                 args: {
                     id: {
                         type: new GraphQLNonNull(GraphQLString)
