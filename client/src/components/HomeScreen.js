@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import '../App.css';
 import gql from 'graphql-tag';
 import { Query } from 'react-apollo';
-
+import { Mutation} from 'react-apollo';
 const GET_LOGOS = gql`
   {
     logos {
@@ -12,6 +12,30 @@ const GET_LOGOS = gql`
       lastUpdate
     }
   }
+`;
+const ADD_LOGO = gql`
+    mutation AddLogo(
+        $logoName: String!
+        $logos: [String]!,
+        $backgroundColor: String!,
+        $borderColor: String!,
+        $borderWidth: Int!,
+        $borderRadius: Int!,
+        $padding: Int!,
+        $margin: Int!) {
+        addLogo(
+            logoName: $logoName,
+            logos: $logos,
+            backgroundColor: $backgroundColor,
+            borderColor: $borderColor,
+            borderWidth: $borderWidth,
+            borderRadius: $borderRadius,
+            padding: $padding,
+            margin: $margin) {
+            _id,    
+            lastUpdate
+        }
+    }
 `;
 
 const compareDates = (ds1, ds2) => {
@@ -26,8 +50,8 @@ const compareDates = (ds1, ds2) => {
 };
 
 class HomeScreen extends Component {
-
     render() {
+        let newLogoText;
         return (
             <Query pollInterval={500} query={GET_LOGOS}>
                 {({ loading, error, data }) => {
@@ -40,19 +64,35 @@ class HomeScreen extends Component {
                                 <h3>Recent Work</h3>
                                 {data.logos.sort((x, y) => -compareDates(x.lastUpdate, y.lastUpdate)).map((logo, index) => (
                                     <div key={index} className='home_logo_link'>
-                                        <Link to={`/view/${logo._id}`} className="home_logo_link_text" style={{ cursor: "pointer" }}>{logo.text}</Link>
+                                        <Link to={`/view/${logo._id}`} className="home_logo_link_text" style={{ cursor: "pointer" }}>{logo.logoName}</Link>
                                     </div>
                                 ))}
                             </div>
+                            <Mutation mutation={ADD_LOGO} onCompleted={() => this.props.history.push('/') }>
+                            {(addLogo) => ( 
                             <div className="col s8">
                                 <div id="home_banner_container">
                                     @todo<br />
                                     List Maker
                                 </div>
                                 <div>
-                                    <Link id="add_logo_button" to="/create" className ={"btn btn-secondary btn-block"}>Add Logo</Link>
+                                    <form
+                                    onSubmit={e => {
+                                        e.preventDefault();
+                                        console.log(data);
+                                        if(newLogoText.value.length > 1) {
+                                            addLogo({variables: {logoName: newLogoText.value, logos: [], backgroundColor: '#FFFFFF',
+                                                    borderColor: '#000000', borderWidth: 10, borderRadius: 20, padding: 0, margin: 0}});
+                                            newLogoText.value = "";
+                                        }
+                                    }}
+                                        >
+                                        <input type="text" name="newLogoText" placeholder="Logo Name" ref={node => {newLogoText = node}}></input>
+                                        <button type="submit" >Add Logo</button>                                            
+                                    </form>
                                 </div>
                             </div>
+                            )}</Mutation>
                         </div>
                     );
                 }

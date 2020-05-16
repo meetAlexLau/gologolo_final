@@ -19,6 +19,9 @@ var logoType = new GraphQLObjectType({
             logoName: {
                 type: GraphQLString
             },
+            logos: {
+                type: GraphQLList(GraphQLString)
+            },
             backgroundColor: {
                 type: GraphQLString
             },
