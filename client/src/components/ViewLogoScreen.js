@@ -8,9 +8,8 @@ const GET_LOGO = gql`
     query logo($logoId: String) {
         logo(id: $logoId) {
             _id
-            text
-            color
-            fontSize
+            logoName
+            logos
             backgroundColor
             borderColor
             borderWidth
@@ -51,16 +50,12 @@ class ViewLogoScreen extends Component {
                                 <div className="panel-body row">
                                     <div className="col-6">
                                         <dl>
-                                            <dt>Text:</dt>
-                                            <dd>{data.logo.text}</dd>
-                                            <dt>Color:</dt>
-                                            <dd>{data.logo.color}</dd>
+                                            <dt> LogoName:</dt>
+                                            <dd>{data.logo.logoName}</dd>
                                             <dt>BackgroundColor:</dt>
                                             <dd>{data.logo.backgroundColor}</dd>
                                             <dt>BorderColor:</dt>
                                             <dd>{data.logo.borderColor}</dd>
-                                            <dt>Font Size:</dt>
-                                            <dd>{data.logo.fontSize}</dd>
                                             <dt>Border Width:</dt>
                                             <dd>{data.logo.borderWidth}</dd>
                                             <dt>Border Radius:</dt>
@@ -89,8 +84,7 @@ class ViewLogoScreen extends Component {
                                         )}
                                     </Mutation>
                                     </div>
-                                    <div className="col-6">
-                                        <span style={{
+                                    <div className="col-6"style={{
                                             display: "inline-block",
                                             color: data.logo.color,
                                             backgroundColor: data.logo.backgroundColor,
@@ -101,7 +95,7 @@ class ViewLogoScreen extends Component {
                                             borderRadius: data.logo.borderRadius + "px",
                                             padding: data.logo.padding + "px",
                                             margin: data.logo.margin + "px"
-                                        }}>{data.logo.text}</span>
+                                        }}>{data.logo.text}
                                     </div>
                                 </div>
                             </div>

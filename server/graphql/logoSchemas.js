@@ -51,7 +51,7 @@ var logoComponentType = new GraphQLObjectType({
     name: 'logoComponent',
     fields: function() {
         return {
-            id: {
+            _id: {
                 type: GraphQLString
             },
             text: {
@@ -281,7 +281,7 @@ var mutation = new GraphQLObjectType({
                 type: logoComponentType,
                 args: {
                     id: {
-                        name: '_id',
+                        name: 'id',
                         type: new GraphQLNonNull(GraphQLString)
                     },
                     text: {
