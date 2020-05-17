@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import '../App.css';
 import gql from 'graphql-tag';
 import { Query, Mutation } from 'react-apollo';
+import html2canvas from "html2canvas";
 
 const GET_LOGO = gql`
     query logo($logoId: String) {
@@ -11,6 +12,7 @@ const GET_LOGO = gql`
             logoName
             logos
             backgroundColor
+            dimensions
             borderColor
             borderWidth
             borderRadius
@@ -45,6 +47,7 @@ class ViewLogoScreen extends Component {
                                     <h4><Link to="/" className={"btn btn-secondary btn-block"}>Home</Link></h4>
                                     <h3 className="panel-title">
                                         View Logo
+                                        <h2>{data.logo.logoName}</h2>
                                     </h3>
                                 </div>
                                 <div className="panel-body row">
@@ -54,6 +57,8 @@ class ViewLogoScreen extends Component {
                                             <dd>{data.logo.logoName}</dd>
                                             <dt>BackgroundColor:</dt>
                                             <dd>{data.logo.backgroundColor}</dd>
+                                            <dt>Dimensions:</dt>
+                                            <dd>{data.logo.dimensions +"x"}</dd>
                                             <dt>BorderColor:</dt>
                                             <dd>{data.logo.borderColor}</dd>
                                             <dt>Border Width:</dt>
@@ -77,6 +82,18 @@ class ViewLogoScreen extends Component {
                                                     }}>
                                                     <Link to={`/edit/${data.logo._id}`} className="btn btn-success">Edit</Link>&nbsp;
                                                 <button type="submit" className="btn btn-danger">Delete</button>
+                                                <button type="button" className="btn btn-primary" id = "exportTrigger"
+                                                    onClick={() => {
+                                                        var logo = document.querySelector("#exportLogo");
+                                                        html2canvas(logo,{scrollY: -window.scrollY, scrollX:-window.scrollX}).then(canvas => {
+                                                            var a = document.createElement("a");
+                                                            document.body.appendChild(canvas);
+                                                            a.href = canvas.toDataURL("image/png");
+                                                            a.download = data.logo.logoName+".png";
+                                                            a.click();
+                                                            document.body.removeChild(canvas);
+                                                        });
+                                                    }}>Export</button>
                                                 </form>
                                                 {loading && <p>Loading...</p>}
                                                 {error && <p>Error :( Please try again</p>}
@@ -84,9 +101,8 @@ class ViewLogoScreen extends Component {
                                         )}
                                     </Mutation>
                                     </div>
-                                    <div className="col-6"style={{
+                                    <div id="exportLogo" style={{
                                             display: "inline-block",
-                                            color: data.logo.color,
                                             backgroundColor: data.logo.backgroundColor,
                                             borderColor: data.logo.borderColor,
                                             borderStyle: "solid",
@@ -94,7 +110,9 @@ class ViewLogoScreen extends Component {
                                             borderWidth: data.logo.borderWidth + "px",
                                             borderRadius: data.logo.borderRadius + "px",
                                             padding: data.logo.padding + "px",
-                                            margin: data.logo.margin + "px"
+                                            margin: data.logo.margin + "px",
+                                            height: data.logo.dimensions +"px",
+                                            width: data.logo.dimensions+"px"
                                         }}>{data.logo.text}
                                     </div>
                                 </div>

@@ -18,6 +18,7 @@ const ADD_LOGO = gql`
         $logoName: String!
         $logos: [String]!,
         $backgroundColor: String!,
+        $dimensions: Int!
         $borderColor: String!,
         $borderWidth: Int!,
         $borderRadius: Int!,
@@ -27,6 +28,7 @@ const ADD_LOGO = gql`
             logoName: $logoName,
             logos: $logos,
             backgroundColor: $backgroundColor,
+            dimensions: $dimensions,
             borderColor: $borderColor,
             borderWidth: $borderWidth,
             borderRadius: $borderRadius,
@@ -81,14 +83,23 @@ class HomeScreen extends Component {
                                         e.preventDefault();
                                         console.log(data);
                                         if(newLogoText.value.length > 1) {
-                                            addLogo({variables: {logoName: newLogoText.value, logos: [], backgroundColor: '#FFFFFF',
+                                            addLogo({variables: {logoName: newLogoText.value, logos: [], backgroundColor: '#FFFFFF', dimensions: 400,
                                                     borderColor: '#000000', borderWidth: 10, borderRadius: 20, padding: 0, margin: 0}});
                                             newLogoText.value = "";
                                         }
                                     }}
                                         >
                                         <input type="text" name="newLogoText" placeholder="Logo Name" ref={node => {newLogoText = node}}></input>
-                                        <button type="submit" >Add Logo</button>                                            
+                                        <button type="submit" >Add Logo</button>
+                                         <p id="help" style={{opacity: "0"}} onMouseOver={() => {document.getElementById("help").style.opacity = "1.0"}}
+                                                                              onMouseLeave={() => {document.getElementById("help").style.opacity = "0.0"}}>
+                                             Unable to edit texts/images. Unable save texts/images to db.
+                                             Unable to resize texts/images.
+                                             No Login authentication. 
+                                             <br/>
+                                             <br/>
+                                             Please be gentle.
+                                         </p>
                                     </form>
                                 </div>
                             </div>

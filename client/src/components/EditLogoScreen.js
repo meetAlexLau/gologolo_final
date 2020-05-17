@@ -3,6 +3,8 @@ import { Link } from 'react-router-dom';
 import gql from "graphql-tag";
 import { Query, Mutation } from "react-apollo";
 import { clamp } from "../utils/utlity";
+import Draggable from "react-draggable";
+import html2canvas from "html2canvas";
 
 const GET_LOGOS = gql`
   {
@@ -21,6 +23,7 @@ const GET_LOGO = gql`
             logoName
             logos
             backgroundColor
+            dimensions
             borderColor
             borderWidth
             borderRadius
@@ -48,6 +51,7 @@ const UPDATE_LOGO = gql`
         $logoName: String!,
         $logos: [String]!,
         $backgroundColor: String!,
+        $dimensions: Int!,
         $borderColor: String!,
         $borderWidth: Int!,
         $borderRadius: Int!,
@@ -58,6 +62,7 @@ const UPDATE_LOGO = gql`
                 logoName: $logoName,
                 logos: $logos,
                 backgroundColor: $backgroundColor,
+                dimensions: $dimensions,
                 borderColor: $borderColor,
                 borderWidth: $borderWidth,
                 borderRadius: $borderRadius,
@@ -86,6 +91,8 @@ const ADD_LOGO_COMPONENT = gql`
         }
 `;
 
+
+
 class EditLogoScreen extends Component {
 
     constructor(props){
@@ -96,6 +103,7 @@ class EditLogoScreen extends Component {
             renderText: "",
             renderColor: "",
             renderBackgroundColor: "",
+            renderDimensions: "",
             renderBorderColor: "",
             renderBorderWidth: "",
             renderBorderRadius: "",
@@ -104,18 +112,20 @@ class EditLogoScreen extends Component {
             renderMargin: "",
             activated: false,
             selected: true,
+            image: []
         }
     }
 
     render() {
-        let logoComponent, logoName, text, color, fontSize, backgroundColor, borderColor, borderWidth, borderRadius, padding, margin;
+        let logoComponent, imageComponent, logoName, text, color, fontSize, backgroundColor, dimensions, borderColor, borderWidth, borderRadius, padding, margin;
         return (
             <Query query={GET_LOGO} variables={{ logoId: this.props.match.params.id }}>
                 {({ loading, error, data }) => {
                     if (loading) return 'Loading...';
                     if (error) return `Error! ${error.message}`;
                     if(this.state.activated == false) {
-                        this.setState({renderLogoName: data.logo.logoName, renderBackgroundColor: data.logo.backgroundColor, renderBorderColor: data.logo.borderColor,
+                        this.setState({renderLogoName: data.logo.logoName, renderBackgroundColor: data.logo.backgroundColor, renderDimensions: data.logo.dimensions+"px",
+                            renderBorderColor: data.logo.borderColor,
                             renderBorderWidth: data.logo.borderWidth+ "px", renderBorderRadius: data.logo.borderRadius+"px", renderPadding: data.logo.padding+"px",
                             renderMargin: data.logo.margin+"px", activated:true});
                     }
@@ -138,7 +148,13 @@ class EditLogoScreen extends Component {
                                                     if (error) return `Error! ${error.message}`;                                                  
                                                 return(
                                                 <div>
-                                                    <button type="button"onClick={() => {console.log(data)}}>eeee</button>
+                                                        <div className="form-group col-8">
+                                                            <label htmlFor="imageComponent">Enter Image URL:</label>
+                                                            <input type="text" className="form-control" name="imageComponent" ref={node => {
+                                                                imageComponent= node;
+                                                                }} placeholder={"url"} defaultValue={"url"} />
+                                                            <button onClick={() => {this.setState({image: [...this.state.image, imageComponent.value]}); console.log(this.state.image   )}}>Upload</button>
+                                                        </div>
                                                     <Mutation mutation={ADD_LOGO_COMPONENT} onCompleted={() => window.location.reload()}>
                                                     {(addLogoComponent) => (
                                                         <div>
@@ -175,23 +191,36 @@ class EditLogoScreen extends Component {
                                                                         fontSize = node;
                                                                     }} onChange={() => this.setState({renderFontSize: parseInt(fontSize.value)})} placeholder={12} defaultValue={12} />
                                                                 </div>
+                                                                <div className="form-group col-8">
+                                                                    <label htmlFor="height">Height:</label>
+                                                                    <input disabled={this.state.selected} type="range" min="0" max="800" className="form-control" name="fontSize" ref={node => {
+                                                                        fontSize = node;
+                                                                    }} onChange={() => this.setState({renderFontSize: parseInt(fontSize.value)})} placeholder={12} defaultValue={12} />
+                                                                </div>
+                                                                <div className="form-group col-8">
+                                                                    <label htmlFor="fontSize">Width:</label>
+                                                                    <input disabled={this.state.selected} type="text" onInput={()=>{fontSize.value = clamp(fontSize.value, 0, 144);}} className="form-control" name="fontSize" ref={node => {
+                                                                        fontSize = node;
+                                                                    }} onChange={() => this.setState({renderFontSize: parseInt(fontSize.value)})} placeholder={12} defaultValue={12} />
+                                                                </div>
                                                             </form>
                                                         </div>
                                                     )}</Mutation>
                                                 </div>
                                             )}}</Query>
-                                        <Mutation mutation={UPDATE_LOGO, ADD_LOGO_COMPONENT} key={data.logo._id} onCompleted={() => this.props.history.push(`/`)}>
+                                        <Mutation mutation={UPDATE_LOGO} key={data.logo._id} onCompleted={() => this.props.history.push(`/`)}>
                                         {(updateLogo, { loading, error }) => (
                                             <form onSubmit={e => {
                                                 e.preventDefault();
                                                 updateLogo({ variables: { id: data.logo._id, logoName: logoName.value, logos: data.logo.logos,
-                                                                            backgroundColor: backgroundColor.value, borderColor: borderColor.value,
+                                                                            backgroundColor: backgroundColor.value, dimensions: parseInt(dimensions.value), borderColor: borderColor.value,
                                                                             borderWidth: parseInt(borderWidth.value), borderRadius: parseInt(borderRadius.value),
                                                                             padding: parseInt(padding.value), margin: parseInt(margin.value)  } });
                                                 logoName.value = "";
                                                 color.value = "";
                                                 fontSize.value = "";
                                                 backgroundColor.value = "";
+                                                dimensions.value ="";
                                                 borderColor.value = "";
                                                 borderWidth.value = "";
                                                 borderRadius.value = "";
@@ -209,6 +238,12 @@ class EditLogoScreen extends Component {
                                                     <input type="color" className="form-control" name="backgroundColor" ref={node => {
                                                         backgroundColor = node;
                                                     }} onChange={() => this.setState({renderBackgroundColor: backgroundColor.value})} placeholder={data.logo.backgroundColor} defaultValue={data.logo.backgroundColor} />
+                                                </div>
+                                                <div className="form-group col-6">
+                                                <label htmlFor="dimensions">Dimensions:</label>
+                                                    <input type="Number" min="1" max="800" className="form-control" name="dimensions" ref={node => {
+                                                        dimensions = node; }} onInput={()=>{dimensions.value = clamp(dimensions.value, 1, 800);}}
+                                                        onChange={() =>  {this.setState({renderDimensions: parseInt(dimensions.value)}); console.log(this.state)}} placeholder={data.logo.dimensions} defaultValue={data.logo.dimensions} />
                                                 </div>
                                                 <div className="form-group col-4">
                                                     <label htmlFor="borderColor">Border Color:</label>
@@ -241,11 +276,27 @@ class EditLogoScreen extends Component {
                                                     }} onChange={() => this.setState({renderMargin: parseInt(margin.value)})} placeholder={data.logo.margin} defaultValue={data.logo.margin} />
                                                 </div>
                                                 <button type="submit" className="btn btn-success">Submit</button>
-                                                <button type="button" className="btn btn-primary">Export</button>
+                                                <button type="button" className="btn btn-primary"
+                                                    id = "exportTrigger"
+                                                    onClick={() => {
+                                                        var logo = document.querySelector("#exportLogo");
+                                                        html2canvas(logo,{scrollY: -window.scrollY, scrollX:-window.scrollX, useCORS: true,allowTaint: true}).then(canvas => {
+                                                            var a = document.createElement("a");
+                                                            document.body.appendChild(canvas);
+                                                            a.href = canvas.toDataURL("image/png");
+                                                            a.download = data.logo.logoName+".png";
+                                                            a.click();
+                                                            document.body.removeChild(canvas);
+                                                        });
+                                                    }}>Export</button>
                                             </form>
                                         )}</Mutation>
-                                        </div>
-                                        <div className="col-8" style={{
+                                        </div>                                        
+                                        <div onDrop={(ev) => {
+                                                            ev.preventDefault();
+                                                            var data = ev.dataTransfer.getData("URL");
+                                                            ev.target.appendChild(document.getElementById(data));
+                                                        }} id="exportLogo"  style={{
                                             backgroundColor: this.state.renderBackgroundColor,
                                             borderColor: this.state.renderBorderColor,
                                             borderStyle: "solid",
@@ -253,22 +304,30 @@ class EditLogoScreen extends Component {
                                             borderRadius: this.state.renderBorderRadius,
                                             padding: this.state.renderPadding,
                                             margin: this.state.renderMargin,
-                                            height: "800px",
-                                            width: "800px"
-                                        }}>
+                                            height: this.state.renderDimensions,
+                                            width: this.state.renderDimensions,
+                                            position: "relative"
+                                        }} onClick={() => {this.setState({selected: true})}}>
                                             <Query query={GET_LOGO_COMPONENTS} pollInterval={500}>
                                                 {({loading, error, data})=> {
                                                     if (loading) return 'Loading...';
                                                     if (error) return `Error! ${error.message}`;  
                                                     return (
-                                                        <div>
-                                                            <button type="button" onClick={()=> {console.log(data.logoComponents)}}>weas</button>
+                                                        <div style={{height: this.state.renderDimensions, width:this.state.renderDimensions}}>
                                                             {data.logoComponents.map((logoComp, index) => (
-                                                                <div key={index}
-                                                                style={{color: logoComp.color, fontSize: logoComp.fontSize, height: logoComp.height, width: logoComp.width}}
-                                                                >{logoComp.text}</div>
+                                                                <Draggable bounds="parent" onClick={() => {this.setState({selected: false}); console.log(this.state)}}> 
+                                                                    <div key={index} id={index} 
+                                                                    style={{color: logoComp.color, fontSize: logoComp.fontSize,
+                                                                            position:"absolute", display:"flex", justifyContent:"center", alignItems:"center",
+                                                                            transform: (logoComp.height, logoComp.width)}}
+                                                                    >{logoComp.text}</div>
+                                                                </Draggable>
                                                             ))}
-                                                            
+                                                            {this.state.image.map((img) =>(
+                                                                <Draggable bounds="parent">
+                                                                    <img draggable="false" style={{height:"50%", width:"50%"}}src={img}></img>
+                                                                </Draggable>
+                                                            ))}
                                                         </div>
                                                     );
                                                 }}
