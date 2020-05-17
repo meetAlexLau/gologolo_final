@@ -74,8 +74,8 @@ class HomeScreen extends Component {
                             {(addLogo) => ( 
                             <div className="col s8">
                                 <div id="home_banner_container">
-                                    @todo<br />
-                                    List Maker
+                                    Logo<br />
+                                    Maker <h5>Special Edition</h5>
                                 </div>
                                 <div>
                                     <form
@@ -93,7 +93,7 @@ class HomeScreen extends Component {
                                         <button type="submit" >Add Logo</button>
                                          <p id="help" style={{opacity: "0"}} onMouseOver={() => {document.getElementById("help").style.opacity = "1.0"}}
                                                                               onMouseLeave={() => {document.getElementById("help").style.opacity = "0.0"}}>
-                                             Unable to edit texts/images. Unable save texts/images to db.
+                                             Unable to edit texts/images. Unable to save texts/images to db.
                                              Unable to resize texts/images.
                                              No Login authentication. 
                                              <br/>

@@ -117,7 +117,7 @@ class EditLogoScreen extends Component {
     }
 
     render() {
-        let logoComponent, imageComponent, logoName, text, color, fontSize, backgroundColor, dimensions, borderColor, borderWidth, borderRadius, padding, margin;
+        let logoComponent, imageComponent, logoName, text, color, fontSize, backgroundColor, dimensions, borderColor, borderWidth, borderRadius, padding, margin, height, width;
         return (
             <Query query={GET_LOGO} variables={{ logoId: this.props.match.params.id }}>
                 {({ loading, error, data }) => {
@@ -153,7 +153,7 @@ class EditLogoScreen extends Component {
                                                             <input type="text" className="form-control" name="imageComponent" ref={node => {
                                                                 imageComponent= node;
                                                                 }} placeholder={"url"} defaultValue={"url"} />
-                                                            <button onClick={() => {this.setState({image: [...this.state.image, imageComponent.value]}); console.log(this.state.image   )}}>Upload</button>
+                                                            <button onClick={() => {this.setState({image: [...this.state.image, imageComponent.value]}); console.log(this.state.image); imageComponent.value = ""}}>Upload</button>
                                                         </div>
                                                     <Mutation mutation={ADD_LOGO_COMPONENT} onCompleted={() => window.location.reload()}>
                                                     {(addLogoComponent) => (
@@ -161,7 +161,7 @@ class EditLogoScreen extends Component {
                                                             <form onSubmit={e => {
                                                                 e.preventDefault();
                                                                     if(logoComponent.value.length >1) {
-                                                                        addLogoComponent({variables: {text: logoComponent.value, color: "#000000", fontSize: 12,
+                                                                        addLogoComponent({variables: {text: logoComponent.value, color: "#000000", fontSize: 24,
                                                                             height: 300, width: 300}});
                                                                             logoComponent.value = "";
                                                                     };
@@ -172,7 +172,11 @@ class EditLogoScreen extends Component {
                                                                         logoComponent= node;
                                                                         }} placeholder={"Text"} defaultValue={"Text"} />
                                                                     <button type="submit">Create</button>
+                                                                    <button disabled={this.state.selected} type="button">Delete</button>
                                                                 </div>
+                                                                <h6>Click on an text/picture to enable editing.</h6>
+                                                                <h5>------------------------------</h5>
+                                                                <h5>Text Edit:</h5>
                                                                 <div className="form-group col-8">
                                                                     <label htmlFor="text">Text:</label>
                                                                     <input disabled={this.state.selected} type="text" className="form-control" name="text" ref={node => {
@@ -193,16 +197,21 @@ class EditLogoScreen extends Component {
                                                                 </div>
                                                                 <div className="form-group col-8">
                                                                     <label htmlFor="height">Height:</label>
-                                                                    <input disabled={this.state.selected} type="range" min="0" max="800" className="form-control" name="fontSize" ref={node => {
-                                                                        fontSize = node;
-                                                                    }} onChange={() => this.setState({renderFontSize: parseInt(fontSize.value)})} placeholder={12} defaultValue={12} />
+                                                                    <input disabled={this.state.selected} type="range" min="0" max="800" className="form-control" name="height" ref={node => {
+                                                                        height = node;
+                                                                    }} /*onChange={() => this.setState({renderFontSize: parseInt(width.value)})} placeholder={12} defaultValue={12}*/ />
                                                                 </div>
                                                                 <div className="form-group col-8">
                                                                     <label htmlFor="fontSize">Width:</label>
-                                                                    <input disabled={this.state.selected} type="text" onInput={()=>{fontSize.value = clamp(fontSize.value, 0, 144);}} className="form-control" name="fontSize" ref={node => {
-                                                                        fontSize = node;
-                                                                    }} onChange={() => this.setState({renderFontSize: parseInt(fontSize.value)})} placeholder={12} defaultValue={12} />
+                                                                    <input disabled={this.state.selected} type="range"min="0" max="800"  className="form-control" name="width" ref={node => {
+                                                                        width = node;
+                                                                    }} /*onChange={() => this.setState({renderFontSize: parseInt(fontSize.value)})} placeholder={12} defaultValue={12}*/ />
                                                                 </div>
+                                                                <span>
+                                                                    <button disabled={this.state.selected} type="button">Send to Front</button>
+                                                                    <button disabled={this.state.selected} type="button">Send to Back</button>
+                                                                </span>
+                                                                <h5>------------------------------</h5>
                                                             </form>
                                                         </div>
                                                     )}</Mutation>
@@ -241,8 +250,8 @@ class EditLogoScreen extends Component {
                                                 </div>
                                                 <div className="form-group col-6">
                                                 <label htmlFor="dimensions">Dimensions:</label>
-                                                    <input type="Number" min="1" max="800" className="form-control" name="dimensions" ref={node => {
-                                                        dimensions = node; }} onInput={()=>{dimensions.value = clamp(dimensions.value, 1, 800);}}
+                                                    <input type="Number" min="1" max="700" className="form-control" name="dimensions" ref={node => {
+                                                        dimensions = node; }} onInput={()=>{dimensions.value = clamp(dimensions.value, 1, 700);}}
                                                         onChange={() =>  {this.setState({renderDimensions: parseInt(dimensions.value)}); console.log(this.state)}} placeholder={data.logo.dimensions} defaultValue={data.logo.dimensions} />
                                                 </div>
                                                 <div className="form-group col-4">
@@ -315,8 +324,8 @@ class EditLogoScreen extends Component {
                                                     return (
                                                         <div style={{height: this.state.renderDimensions, width:this.state.renderDimensions}}>
                                                             {data.logoComponents.map((logoComp, index) => (
-                                                                <Draggable bounds="parent" onClick={() => {this.setState({selected: false}); console.log(this.state)}}> 
-                                                                    <div key={index} id={index} 
+                                                                <Draggable bounds="parent" > 
+                                                                    <div onMouseEnter={() => {this.setState({selected: false})}} key={index} id={index} 
                                                                     style={{color: logoComp.color, fontSize: logoComp.fontSize,
                                                                             position:"absolute", display:"flex", justifyContent:"center", alignItems:"center",
                                                                             transform: (logoComp.height, logoComp.width)}}
@@ -325,7 +334,8 @@ class EditLogoScreen extends Component {
                                                             ))}
                                                             {this.state.image.map((img) =>(
                                                                 <Draggable bounds="parent">
-                                                                    <img draggable="false" style={{height:"50%", width:"50%"}}src={img}></img>
+                                                                    <img onMouseEnter={() => {this.setState({selected: false})}}
+                                                                    draggable="false" style={{height:"50%", width:"50%"}}src={img}></img>
                                                                 </Draggable>
                                                             ))}
                                                         </div>
