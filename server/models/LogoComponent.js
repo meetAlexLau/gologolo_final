@@ -6,7 +6,7 @@ var LogoComponentSchema = new mongoose.Schema({
   color: String,
   fontSize: { type: Number, min: 2, max: 144 },
   height: Number,
-  width: Number
+  width: Number,
 });
 
 module.exports = mongoose.model('LogoComponent', LogoComponentSchema);

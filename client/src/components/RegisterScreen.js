@@ -5,16 +5,15 @@ import gql from 'graphql-tag';
 import { Query } from 'react-apollo';
 import { Mutation} from 'react-apollo';
 
-class LoginScreen extends Component{
+class RegisterScreen extends Component {
     render() {
         return (
             <div class="container">
-                <div class="row">
-                    <div class = "col" id="home_banner_container">
-                        <div style={{fontSize:"100px"}}>Logo Maker</div>
-                        <div style={{fontSize:"40px"}}>Special Edition</div>
-                    </div>
-                    <div class ="col" style={{transform:"translateY(100%)"}}>
+                <div class="row align-self-center">
+                    <div class="col-sm" style={{transform:"translateY(10%)"}}>
+                        <div id="home_banner_container">
+                            <div>Register</div>
+                        </div>
                         <div class="form-group">
                             <label>Email Address</label>
                             <input type="email" class="form-control" aria-desbribedby="emailHelp" placeholder="logoman@email.com"></input>
@@ -24,13 +23,15 @@ class LoginScreen extends Component{
                             <input type="password" class="form-control" placeholder="password"></input>
                         </div>
                         <div class="form-group">
-                            <Link to={`./register`} className="btn btn-secondary">Register</Link>
-                            <Link to={`./`} className="btn btn-primary">Login</Link>
+                            <label>Confirm Password</label>
+                            <input type="password" class="form-control" placeholder="password"></input>
                         </div>
+                        <Link to={`./`} className="btn btn-primary">Register</Link>
+                        <Link to={`./login`} className="btn btn-secondary">Back to Login</Link>
                     </div>
                 </div>
             </div>
-        );
+        )
     }
 }
-export default LoginScreen;
+export default RegisterScreen;

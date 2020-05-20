@@ -112,7 +112,9 @@ class EditLogoScreen extends Component {
             renderMargin: "",
             activated: false,
             selected: true,
-            image: []
+            image: [],
+            renderHeight: "",
+            renderWidth: ""
         }
     }
 
@@ -127,7 +129,7 @@ class EditLogoScreen extends Component {
                         this.setState({renderLogoName: data.logo.logoName, renderBackgroundColor: data.logo.backgroundColor, renderDimensions: data.logo.dimensions+"px",
                             renderBorderColor: data.logo.borderColor,
                             renderBorderWidth: data.logo.borderWidth+ "px", renderBorderRadius: data.logo.borderRadius+"px", renderPadding: data.logo.padding+"px",
-                            renderMargin: data.logo.margin+"px", activated:true});
+                            renderMargin: data.logo.margin+"px", renderHeight:"100px", renderWidth: "100px",activated:true});
                     }
 
                     return (
@@ -174,7 +176,11 @@ class EditLogoScreen extends Component {
                                                                     <button type="submit">Create</button>
                                                                     <button disabled={this.state.selected} type="button">Delete</button>
                                                                 </div>
-                                                                <h6>Click on an text/picture to enable editing.</h6>
+                                                                </form>
+                                                        </div>
+                                                    )}</Mutation>
+                                                        <div>
+                                                                <h6>Double Click on an text/image to enable editing.</h6>
                                                                 <h5>------------------------------</h5>
                                                                 <h5>Text Edit:</h5>
                                                                 <div className="form-group col-8">
@@ -191,7 +197,7 @@ class EditLogoScreen extends Component {
                                                                 </div>
                                                                 <div className="form-group col-8">
                                                                     <label htmlFor="fontSize">Font Size:</label>
-                                                                    <input disabled={this.state.selected} type="text" onInput={()=>{fontSize.value = clamp(fontSize.value, 0, 144);}} className="form-control" name="fontSize" ref={node => {
+                                                                    <input disabled={this.state.selected} type="range" onInput={()=>{fontSize.value = clamp(fontSize.value, 0, 144);}} className="form-control" name="fontSize" ref={node => {
                                                                         fontSize = node;
                                                                     }} onChange={() => this.setState({renderFontSize: parseInt(fontSize.value)})} placeholder={12} defaultValue={12} />
                                                                 </div>
@@ -199,22 +205,22 @@ class EditLogoScreen extends Component {
                                                                     <label htmlFor="height">Height:</label>
                                                                     <input disabled={this.state.selected} type="range" min="0" max="800" className="form-control" name="height" ref={node => {
                                                                         height = node;
-                                                                    }} /*onChange={() => this.setState({renderFontSize: parseInt(width.value)})} placeholder={12} defaultValue={12}*/ />
+                                                                    }} onChange={() => this.setState({renderHeight: parseInt(height.value)})}
+                                                                    /*onChange={() => this.setState({renderFontSize: parseInt(width.value)})} placeholder={12} defaultValue={12}*/ />
                                                                 </div>
                                                                 <div className="form-group col-8">
                                                                     <label htmlFor="fontSize">Width:</label>
                                                                     <input disabled={this.state.selected} type="range"min="0" max="800"  className="form-control" name="width" ref={node => {
                                                                         width = node;
-                                                                    }} /*onChange={() => this.setState({renderFontSize: parseInt(fontSize.value)})} placeholder={12} defaultValue={12}*/ />
+                                                                    }} onChange={() => this.setState({renderWidth: parseInt(width.value)})}
+                                                                     /*onChange={() => this.setState({renderFontSize: parseInt(fontSize.value)})} placeholder={12} defaultValue={12}*/ />
                                                                 </div>
                                                                 <span>
                                                                     <button disabled={this.state.selected} type="button">Send to Front</button>
                                                                     <button disabled={this.state.selected} type="button">Send to Back</button>
                                                                 </span>
                                                                 <h5>------------------------------</h5>
-                                                            </form>
-                                                        </div>
-                                                    )}</Mutation>
+                                                            </div>
                                                 </div>
                                             )}}</Query>
                                         <Mutation mutation={UPDATE_LOGO} key={data.logo._id} onCompleted={() => this.props.history.push(`/`)}>
@@ -289,7 +295,7 @@ class EditLogoScreen extends Component {
                                                     id = "exportTrigger"
                                                     onClick={() => {
                                                         var logo = document.querySelector("#exportLogo");
-                                                        html2canvas(logo,{scrollY: -window.scrollY, scrollX:-window.scrollX, useCORS: true,allowTaint: true}).then(canvas => {
+                                                        html2canvas(logo,{scrollY: -window.scrollY, scrollX:-window.scrollX-10, useCORS: true,allowTaint: true}).then(canvas => {
                                                             var a = document.createElement("a");
                                                             document.body.appendChild(canvas);
                                                             a.href = canvas.toDataURL("image/png");
@@ -322,11 +328,11 @@ class EditLogoScreen extends Component {
                                                     if (loading) return 'Loading...';
                                                     if (error) return `Error! ${error.message}`;  
                                                     return (
-                                                        <div style={{height: this.state.renderDimensions, width:this.state.renderDimensions}}>
+                                                        <div style={{height: this.state.renderDimensions, width: parseInt(this.state.renderDimensions)-20 +"px"}}>
                                                             {data.logoComponents.map((logoComp, index) => (
                                                                 <Draggable bounds="parent" > 
-                                                                    <div onMouseEnter={() => {this.setState({selected: false})}} key={index} id={index} 
-                                                                    style={{color: logoComp.color, fontSize: logoComp.fontSize,
+                                                                    <div onDoubleClick={() => {this.setState({selected: false})}} key={index} id={index} 
+                                                                    style={{color: this.state.renderColor, fontSize: this.state.renderFontSize,
                                                                             position:"absolute", display:"flex", justifyContent:"center", alignItems:"center",
                                                                             transform: (logoComp.height, logoComp.width)}}
                                                                     >{logoComp.text}</div>
@@ -334,8 +340,8 @@ class EditLogoScreen extends Component {
                                                             ))}
                                                             {this.state.image.map((img) =>(
                                                                 <Draggable bounds="parent">
-                                                                    <img onMouseEnter={() => {this.setState({selected: false})}}
-                                                                    draggable="false" style={{height:"50%", width:"50%"}}src={img}></img>
+                                                                    <img onDoubleClick={() => {this.setState({selected: false})}}
+                                                                    draggable="false" style={{height:this.state.renderHeight, width:this.state.renderWidth}}src={img}></img>
                                                                 </Draggable>
                                                             ))}
                                                         </div>

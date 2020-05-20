@@ -5,6 +5,7 @@ var LogoSchema = new mongoose.Schema({
   logoName: String,
   logos: [String],
   backgroundColor: String,
+  dimensions: Number,
   borderColor: String,
   borderWidth: { type: Number, min: 0, max: 100 },
   borderRadius: { type: Number, min: 0, max: 100 },

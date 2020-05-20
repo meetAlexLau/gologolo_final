@@ -85,7 +85,7 @@ class ViewLogoScreen extends Component {
                                                 <button type="button" className="btn btn-primary" id = "exportTrigger"
                                                     onClick={() => {
                                                         var logo = document.querySelector("#exportLogo");
-                                                        html2canvas(logo,{scrollY: -window.scrollY, scrollX:-window.scrollX}).then(canvas => {
+                                                        html2canvas(logo,{scrollY: -window.scrollY, scrollX:-window.scrollX-10}).then(canvas => {
                                                             var a = document.createElement("a");
                                                             document.body.appendChild(canvas);
                                                             a.href = canvas.toDataURL("image/png");

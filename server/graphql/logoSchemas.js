@@ -7,6 +7,7 @@ var GraphQLID = require('graphql').GraphQLID;
 var GraphQLString = require('graphql').GraphQLString;
 var GraphQLInt = require('graphql').GraphQLInt;
 var GraphQLDate = require('graphql-date');
+var GraphQLBoolean = require('graphql').GraphQLBoolean;
 var LogoModel = require('../models/Logo');
 var LogoComponentModel = require('../models/LogoComponent');
 var logoType = new GraphQLObjectType({
@@ -24,6 +25,9 @@ var logoType = new GraphQLObjectType({
             },
             backgroundColor: {
                 type: GraphQLString
+            },
+            dimensions: {
+                type: GraphQLInt
             },
             borderColor: {
                 type: GraphQLString
@@ -181,6 +185,9 @@ var mutation = new GraphQLObjectType({
                     backgroundColor: {
                         type: new GraphQLNonNull(GraphQLString)
                     },
+                    dimensions: {
+                        type: new GraphQLNonNull(GraphQLInt)
+                    },
                     borderColor: {
                         type: new GraphQLNonNull(GraphQLString)
                     },
@@ -251,6 +258,9 @@ var mutation = new GraphQLObjectType({
                     backgroundColor: {
                         type: new GraphQLNonNull(GraphQLString)
                     },
+                    dimensions: {
+                        type: new GraphQLNonNull(GraphQLInt)
+                    },
                     borderColor: {
                         type: new GraphQLNonNull(GraphQLString)
                     },
@@ -270,7 +280,7 @@ var mutation = new GraphQLObjectType({
                 resolve(root, params) {
                     return LogoModel.findByIdAndUpdate(params.id,
                         { logoName: params.logoName, logos: params.logos,
-                            backgroundColor : params.backgroundColor, borderColor : params.borderColor,
+                            backgroundColor : params.backgroundColor,dimensions: params.dimensions, borderColor : params.borderColor,
                             borderWidth: params.borderWidth, borderRadius: params.borderRadius,
                             padding: params.padding, margin: params.margin, lastUpdate: new Date() }, function (err) {
                         if (err) return next(err);
