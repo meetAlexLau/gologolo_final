@@ -136,7 +136,7 @@ class EditLogoScreen extends Component {
                             <div className="container">
                                 <div className="panel panel-default">
                                     <div className="panel-heading">
-                                        <h4><Link to="/" className={"btn btn-secondary btn-block"}>Home</Link></h4>
+                                        <h4><Link to="../home" className={"btn btn-secondary btn-block"}>Home</Link></h4>
                                         <h3 className="panel-title">
                                             Edit Logo 
                                             <h5>{this.state.renderLogoName}</h5>
@@ -223,7 +223,7 @@ class EditLogoScreen extends Component {
                                                             </div>
                                                 </div>
                                             )}}</Query>
-                                        <Mutation mutation={UPDATE_LOGO} key={data.logo._id} onCompleted={() => this.props.history.push(`/`)}>
+                                        <Mutation mutation={UPDATE_LOGO} key={data.logo._id} onCompleted={() => this.props.history.push(`../home`)}>
                                         {(updateLogo, { loading, error }) => (
                                             <form onSubmit={e => {
                                                 e.preventDefault();

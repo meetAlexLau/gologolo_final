@@ -25,7 +25,7 @@ class LoginScreen extends Component{
                         </div>
                         <div class="form-group">
                             <Link to={`./register`} className="btn btn-secondary">Register</Link>
-                            <Link to={`./`} className="btn btn-primary">Login</Link>
+                            <Link to={`./home`} className="btn btn-primary">Login</Link>
                         </div>
                     </div>
                 </div>

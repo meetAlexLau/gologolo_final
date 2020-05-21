@@ -70,7 +70,7 @@ class HomeScreen extends Component {
                                     </div>
                                 ))}
                             </div>
-                            <Mutation mutation={ADD_LOGO} onCompleted={() => this.props.history.push('/') }>
+                            <Mutation mutation={ADD_LOGO} onCompleted={() => this.props.history.push('../home') }>
                             {(addLogo) => ( 
                             <div className="col s8">
                                 <div id="home_banner_container">

@@ -26,8 +26,8 @@ class RegisterScreen extends Component {
                             <label>Confirm Password</label>
                             <input type="password" class="form-control" placeholder="password"></input>
                         </div>
-                        <Link to={`./`} className="btn btn-primary">Register</Link>
-                        <Link to={`./login`} className="btn btn-secondary">Back to Login</Link>
+                        <Link to={`./home`} className="btn btn-primary">Register</Link>
+                        <Link to={`./`} className="btn btn-secondary">Back to Login</Link>
                     </div>
                 </div>
             </div>

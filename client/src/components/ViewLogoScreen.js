@@ -44,7 +44,7 @@ class ViewLogoScreen extends Component {
                         <div className="container">
                             <div className="panel panel-default">
                                 <div className="panel-heading">
-                                    <h4><Link to="/" className={"btn btn-secondary btn-block"}>Home</Link></h4>
+                                    <h4><Link to="../home" className={"btn btn-secondary btn-block"}>Home</Link></h4>
                                     <h3 className="panel-title">
                                         View Logo
                                         <h2>{data.logo.logoName}</h2>
@@ -72,7 +72,7 @@ class ViewLogoScreen extends Component {
                                             <dt>Last Updated:</dt>
                                             <dd>{data.logo.lastUpdate}</dd>
                                         </dl>
-                                        <Mutation mutation={DELETE_LOGO} key={data.logo._id} onCompleted={() => this.props.history.push('/')}>
+                                        <Mutation mutation={DELETE_LOGO} key={data.logo._id} onCompleted={() => this.props.history.push('../home')}>
                                         {(removeLogo, { loading, error }) => (
                                             <div>
                                                 <form
